@@ -7,9 +7,9 @@ setup(name='Portfolio',
       author_email='rowland.ekemezie@andela.com',
       url='http://www.python.org/sigs/distutils-sig/',
       install_requires=[
-          'Flask',
-          'Flask-SQLAlchemy',
-          'Flask-Login',
-          'Flask-WTF'
+          'Flask==0.11.1',
+          'Flask-SQLAlchemy==2.1',
+          'Flask-Login==0.3.2',
+          'Flask-WTF==0.12'
       ],
       )
