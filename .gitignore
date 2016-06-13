@@ -88,3 +88,6 @@ ENV/
 # Rope project settings
 .ropeproject
 .idea
+.DS_Store wsgi/.DS_Store
+.idea/
+.idea/
