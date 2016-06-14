@@ -1,14 +1,20 @@
 {% extends "themes/water/base-layout.html" %}
 
 {% block content %}
-<div class="row" style="padding-top: 50px;">
-    <div class="col-sm-4" style="border-right-style: solid;">
-        <!--<img src="http://placehold.it/350x150" alt="The Avatar guy">-->
-        The avatar
+<div class="row" style="padding-top: 50pxs;">
+    <div class="page-header">
+        <h1>{{ user.firstname }} {{ user.lastname }}</h1>
+        {{ user.tagline }}
     </div>
+    <div class="col-sm-4" style="border-right-style: solid;">
+        <img src="{{ user.avatar }}" alt="Avatar of user">
+        <div class="justify">
+                {{ user.portfolio }}
+        </div>
+    </div>
+
     <div class="col-lg-8">
-        <!--<img src="http://placehold.it/350x150" alt="The Avatar guy">-->
-        The portfolio
+
     </div>
 </div>
 {% endblock %}
