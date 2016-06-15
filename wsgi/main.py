@@ -50,6 +50,7 @@ def index(username=None):
     if username is None:
         return render_template("themes/water/index.html", page_title="Portfolio manager")
     user = User.query.filter_by(username=username).first()
+
     if user is None:
         user = User()
         user.username = username
