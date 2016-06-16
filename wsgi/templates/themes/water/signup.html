@@ -3,7 +3,7 @@
 {% block content %}
     <div class="row">
         <div class="col-sm-2">
-            awee
+            Testing One
         </div>
         <div class="col-sm-8 well">
             <div class="container">
@@ -12,7 +12,8 @@
                         HOW
                     </div>
                     <div class="col-sm-8">
-                        <form action="{{ url_for('signup')}}" class="form" method="POST">
+                        <form action="{{ url_for('signup') }}" class="form" method="POST">
+                            {{ form.hidden_tag() }}
                             <div style="display: none">
                                 <input id="csrf_token" name="csrf_token" type="hidden"
                                        value="1383635238.9##d8f7f433e854cc682ade261cd9bb7113a147ee29"/>
@@ -21,32 +22,30 @@
                                 <h4 class="form-heading">Publish your biography to the world!</h4>
                             </div>
                             <div class="form-group {% if form.email.error %} has-error {% endif %} ">
-                                <label for="email">Email address</label>
-                                <input class="form-control" id="email" name="email" type="text"
-                                       value="elawibowo@gmail.com"/>
+                                {{ form.email.label }}
+                                {{ form.email (class="form-control", placeholder="elawibowo@gmail.com") }}
                                 <p class="help-block">
+                            </div>
+                            <div class="form-group {% if form.password.s %} has-error {% endif %} ">
+                                {{ form.password.label }}
+                                {{ form.password (class="form-control") }}
+                                <p class="help-block">
+                                    {{ form.password.errors[0] }}
 
                             </div>
-                            <div class="form-group {% if form.password.error %} has-error {% endif %} ">
-                                <label for="password">Pick a secure password</label>
-                                <input class="form-control" id="password" name="password" type="password"/>
+                            <div class="form-group  {% if form.username.errors %} has-error {% endif %} ">
+                                {{ form.username.label }}
+                                {{ form.username (class="form-control") }}
                                 <p class="help-block">
-                                    This field is required.
+                                    {{ form.username.errors[0] }}
 
                             </div>
-                            <div class="form-group  {% if form.username.error %} has-error {% endif %} ">
-                                <label for="username">Choose your username</label>
-                                <input class="form-control" id="username" name="username" type="text"/>
+                            <div class="form-group  {% if form.username.errors %} has-error {% endif %} ">
+                                {{ form.agree.label }}
+                                <input id="agree" name="agree" type="checkbox" value="y"/> <label for="agree">I
+                                agree all your </label></label>Terms of Services
                                 <p class="help-block">
-                                    This field is required.
-
-                            </div>
-                            <div class="form-group  has-error ">
-                                <label class="checkbox">
-                                    <input id="agree" name="agree" type="checkbox" value="y"/> <label for="agree">I
-                                    agree all your </label></label>Terms of Services
-                                <p class="help-block">
-                                    You must accept our Terms of Service
+                                    {{ form.agree.errors[0] }}
 
                             </div>
                             <button class="btn btn-success" type="submit">Sign Up</button>

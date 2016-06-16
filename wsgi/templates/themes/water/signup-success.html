@@ -1,0 +1,11 @@
+{% extends "themes/water/base-layout.html" %}
+
+{% block content %}
+    <div class="text-center" style="background-color: #67b168">
+        {% if user %}
+        <p>Congratulations {{ user.username  }}</p>
+            <p>you are welcome to Online portfolio management system.</p>
+        {% endif %}
+    </div>
+{#    <button class="btn-success" onclick="{{url_for('login')}}">Sign in</button>#}
+{% endblock %}
