@@ -1,9 +1,36 @@
-from flask import Flask, render_template
+from flask import Flask, render_template,url_for
 from flask_sqlalchemy import SQLAlchemy
+from flask_wtf import Form
+from wtforms import StringField, PasswordField, HiddenField, validators
+from  wtforms import TextAreaField, BooleanField
+from wtforms.validators import Length, Email
+from wtforms.validators import Optional, DataRequired, EqualTo
+
 
 application = Flask(__name__)
 application.config.from_pyfile('config.py')
+application.config['CSRF_ENABLED'] = True,
+application.config['SECRET_KEY'] = 'THIS IS THE SECRET FOR THE GATEWAY'
 db = SQLAlchemy(application)
+
+
+# Model definition of the form
+class SignUpForm(Form):
+    email = StringField('Email Address', validators=[
+        DataRequired('Your email is required'),
+        Length(min=5, message= u'Your email is too short'),
+        Email(message='That\'s not a valid email address')
+    ])
+    password = PasswordField('Password', validators=[
+        Length(min=8, message='Your password is too short'),
+        DataRequired('Your password is required')
+    ])
+    agree = BooleanField('agree', validators=[
+        DataRequired(u'You need to check the box to continue')
+    ])
+
+    username = StringField('choose your username', validators=[
+        Length(min=6, message=u'Your username is too short'), DataRequired()])
 
 
 class User(db.Model):
@@ -64,6 +91,11 @@ def index(username=None):
         return render_template('themes/water/portfolio.html',
                                page_title='This is the new guys in Town: ' + username, user=user)
     return render_template("themes/water/portfolio.html", page_title=username, user=user)
+
+
+@application.route('/signup')
+def signup():
+    return render_template('themes/water/signup.html', form = SignUpForm(), page_title='This is the signup form')
 
 
 if __name__ == '__main__':
