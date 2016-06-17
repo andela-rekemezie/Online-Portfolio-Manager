@@ -1,10 +1,8 @@
 from flask import Flask, render_template, url_for, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import Form
-from wtforms import StringField, PasswordField, HiddenField, validators
-from wtforms import TextAreaField, BooleanField
-from wtforms.validators import Length, Email
-from wtforms.validators import Optional, DataRequired, EqualTo
+from wtforms import StringField, PasswordField, BooleanField
+from wtforms.validators import Email, DataRequired
 
 application = Flask(__name__)
 application.config.from_pyfile('config.py')
@@ -13,25 +11,15 @@ application.config['SECRET_KEY'] = 'THIS IS THE SECRET FOR THE GATEWAY'
 db = SQLAlchemy(application)
 
 
-# Model definition of the form
-class SignUpForm(Form):
-    email = StringField('Email Address', validators=[
-        DataRequired('Your email is required'),
-        Length(min=5, message=u'Your email is too short'),
-        Email(message='That\'s not a valid email address')
-    ])
-    password = PasswordField('Password', validators=[
-        Length(min=8, message='Your password is too short'),
-        DataRequired('Your password is required')
-    ])
-    agree = BooleanField('agree', validators=[
-        DataRequired(u'You need to check the box to continue')
-    ])
-
-    username = StringField('choose your username', validators=[
-        Length(min=6, message=u'Your username is too short'), DataRequired()])
+# Model definition for the signup form
+class SignupForm(Form):
+    email = StringField('Email Address', validators=[DataRequired(), Email()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    agree = BooleanField('Agree', validators=[DataRequired()])
+    username = StringField('Username', validators=[DataRequired()])
 
 
+# Model definition for the User
 class User(db.Model):
     """Remember always not to use commas in your model definitions"""
     __tablename__ = 'users'
@@ -92,38 +80,35 @@ def index(username=None):
     return render_template("themes/water/portfolio.html", page_title=username, user=user)
 
 
-@application.route('/signup', methods=['POST', 'GET'])
+@application.route('/signup', methods=['GET', 'POST'])
 def signup():
-    import pdb
-    pdb.set_trace()
-    if request.method == "POST":
-        form = SignUpForm(request.form)
-        if form.validate():
-            user = User()
-            form.populate_obj(user)
-            username_exist = User.query.filter_by(username=form.username.data).first()
-            email_exist = User.query.filter_by(email=form.email.data).first()
-            print (username_exist, email_exist)
-            if username_exist:
-                form.username.errors.append('User already exists')
-            if email_exist:
-                form.email.errors.append('Email already exists')
-            if username_exist or email_exist:
-                return render_template('themes/water/signup.html', form=form, page_title='Sign up form')
-            else:
-                user.firstname = 'firstname',
-                user.lastname = 'lastname',
-                user.email = 'email',
-                user.password = 'password',
-                user.portfolio = 'This is a test portfolio',
-                user.avatar = 'http://placehold.it/350/300',
-                db.session.add(user)
-                db.session.commit()
-                return render_template('themes/water/signup-success.html', page_title='Success page on signup',
-                                       user=user)
+    form = SignupForm(request.form)
+    if form.validate_on_submit():
+        print "Here man"
+        user = User()
+        form.populate_obj(user)
+        username_exist = User.query.filter_by(username=form.username.data).first()
+        email_exist = User.query.filter_by(email=form.email.data).first()
+        print email_exist
+        if username_exist:
+            form.username.errors.append('User already exists')
+        if email_exist:
+            form.email.errors.append('Email already exists')
+        if username_exist or email_exist:
+            return render_template('themes/water/signup.html', form=form, page_title='Sign up form')
         else:
-            return render_template('themes/water/signup.html', form=SignUpForm(), page_title='This is the signup form')
-    return render_template('themes/water/signup.html', form=SignUpForm(), page_title='This is the signup form')
+            user.firstname = 'firstname',
+            user.lastname = 'lastname',
+            user.email = form.username.data,
+            user.password = form.password.data,
+            user.portfolio = 'This is a test portfolio',
+            user.avatar = 'http://placehold.it/350/300',
+            db.session.add(user)
+            db.session.commit()
+            return render_template('themes/water/signup-success.html', page_title='Success page on signup',
+                                   user=user)
+    else:
+        return render_template('themes/water/signup.html', form=SignupForm(), page_title='This is the signup form')
 
 
 @application.route('/login')
