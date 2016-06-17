@@ -1,5 +1,5 @@
 <!doctype html>
-<html class="no-js" lang="" novalidate>
+<html class="no-js" lang="">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -14,7 +14,7 @@
     <script src="./../../../static/js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
 </head>
 <body>
-<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+<naV class="navbar navbar-inverse navbar-fixed-top" role="navigation">
     <div class="container">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
@@ -24,21 +24,53 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">Portfolio</a>
+            <a class="navbar-brand" href="/">Portfolio</a>
         </div>
+        {% if session['signed'] %}
+        <ul class="nav navbar-nav navbar-right">
+
+            <li class="dropdown">
+                <a class="dropdown-toggle" href="#">
+                    <span></span>
+                    Signed in as {{ session['username'] }} <strong class="caret"></strong>
+                </a>
+
+                <ul class="dropdown-menu">
+
+                    <li><a href="/{{ session['username'] }}">Your Bio Page</a></li>
+
+                    <li><a href="http://www.pythonblogs.com/%7B%7B%20url_for(%27profile%27)%20%7D%7D">Settings..</a>
+                    </li>
+
+                    <li class="divider"></li>
+
+                    <li><a href="http://www.pythonblogs.com/%7B%7B%20url_for(%27signout%27)%20%7D%7D">Logout</a></li>
+
+                </ul>
+            </li>
+        </ul>
+        {% endif %}
         <div id="navbar" class="navbar-collapse collapse">
-            <form class="navbar-form navbar-right" role="form">
+            <form action="{{ url_for('signin') }}" class="navbar-form navbar-right" role="form" method="POST">
+                {{ signin_form.hidden_tag() }}
                 <div class="form-group">
-                    <input type="text" placeholder="Email" class="form-control">
+                    {{ signin_form.email(type="text", placeholder="Email", class="form-control") }}
                 </div>
                 <div class="form-group">
-                    <input type="password" placeholder="Password" class="form-control">
+                    {{ signin_form.password(type="text", placeholder="Password", class="form-control") }}
                 </div>
-                <button type="submit" class="btn btn-success">Sign in</button>
+                <div class="checkbox">
+                    {{ signin_form.remember_me }}
+                    {{ signin_form.remember_me.label(style="color:rgb(45, 46, 78);") }}
+                    <label for="remember">remember me</label>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success">Sign in</button>
+                </div>
             </form>
         </div><!--/.navbar-collapse -->
     </div>
-</nav>
+</naV>
 <div class="container">
     {% block content %}
 

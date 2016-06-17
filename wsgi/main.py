@@ -1,6 +1,7 @@
 from flask import Flask, render_template, url_for, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import Form
+from flask_login import LoginManager, login_user, current_user, session, redirect, login_required
 from wtforms import StringField, PasswordField, BooleanField
 from wtforms.validators import Email, DataRequired
 
@@ -10,6 +11,17 @@ application.config['CSRF_ENABLED'] = True,
 application.config['SECRET_KEY'] = 'THIS IS THE SECRET FOR THE GATEWAY'
 db = SQLAlchemy(application)
 
+# Three steps to use flask-login
+login_manager = LoginManager()
+login_manager.init_app(application)
+login_manager.login_view = '/signin'
+
+
+# adding user loader decorator
+@login_manager.user_loader
+def load_user(id):
+    return User.query.get(id)
+
 
 # Model definition for the signup form
 class SignupForm(Form):
@@ -17,6 +29,13 @@ class SignupForm(Form):
     password = PasswordField('Password', validators=[DataRequired()])
     agree = BooleanField('Agree', validators=[DataRequired()])
     username = StringField('Username', validators=[DataRequired()])
+
+
+# Model definition for login form
+class LoginForm(Form):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    remember_me = BooleanField('Remember', validators=[DataRequired()])
 
 
 # Model definition for the User
@@ -33,9 +52,10 @@ class User(db.Model):
     time_registered = db.Column(db.DateTime)
     avatar = db.Column(db.String(255))
     portfolio = db.Column(db.String(255))
+    active = db.Column(db.Boolean, default=False)
 
     def __init__(self, password=None, username=None, firstname=None, lastname=None, email=None, tagline=None,
-                 avatar=None, portfolio=None):
+                 avatar=None, portfolio=None, active=None):
         self.username = username,
         self.firstname = firstname,
         self.lastname = lastname,
@@ -43,7 +63,22 @@ class User(db.Model):
         self.portfolio = portfolio,
         self.password = password,
         self.avatar = avatar,
-        self.tagline = tagline
+        self.tagline = tagline,
+        self.active = active
+
+    @staticmethod
+    def is_anonymous():
+        return False
+
+    def is_active(self):
+        return self.active
+
+    @staticmethod
+    def is_authenticated():
+        return True
+
+    def get_id(self):
+        return self.id
 
 
 def init_db():
@@ -62,7 +97,7 @@ def init_db():
 @application.route('/<username>')
 def index(username=None):
     if username is None:
-        return render_template("themes/water/index.html", page_title="Portfolio manager")
+        return render_template("themes/water/index.html", signin_form=LoginForm(), page_title="Portfolio manager")
     user = User.query.filter_by(username=username).first()
 
     if user is None:
@@ -75,7 +110,7 @@ def index(username=None):
         user.avatar = 'http://placekitten.com/350/300'
         db.session.add(user)
         db.session.commit()
-        return render_template('themes/water/portfolio.html',
+        return render_template('themes/water/portfolio.html', signin_form=LoginForm(),
                                page_title='This is the new guys in Town: ' + username, user=user)
     return render_template("themes/water/portfolio.html", page_title=username, user=user)
 
@@ -84,18 +119,17 @@ def index(username=None):
 def signup():
     form = SignupForm(request.form)
     if form.validate_on_submit():
-        print "Here man"
         user = User()
         form.populate_obj(user)
         username_exist = User.query.filter_by(username=form.username.data).first()
         email_exist = User.query.filter_by(email=form.email.data).first()
-        print email_exist
         if username_exist:
             form.username.errors.append('User already exists')
         if email_exist:
             form.email.errors.append('Email already exists')
         if username_exist or email_exist:
-            return render_template('themes/water/signup.html', form=form, page_title='Sign up form')
+            return render_template('themes/water/signup.html', sigin_form=LoginForm(), form=form,
+                                   page_title='Sign up form')
         else:
             user.firstname = 'firstname',
             user.lastname = 'lastname',
@@ -108,12 +142,34 @@ def signup():
             return render_template('themes/water/signup-success.html', page_title='Success page on signup',
                                    user=user)
     else:
-        return render_template('themes/water/signup.html', form=SignupForm(), page_title='This is the signup form')
+        return render_template('themes/water/signup.html', page_title='This is the signup form')
 
 
-@application.route('/login')
-def login():
-    return render_template('themes/water/login.html', page_title='this is Login route')
+@application.route('/signin', methods=['GET', 'POST'])
+def signin():
+    form = LoginForm(request.form)
+    if form.validate_on_submit():
+        if current_user is not None and current_user.is_authenticated():
+            return redirect(url_for('/'))
+        user = User.query.filter_by(email=form.email.data).first()
+        if user is None:
+            form.email.errors.append('User does not exist')
+            return render_template(url_for('signin'), signin_form=form)
+        if user.password != form.password.data:
+            return render_template(url_for('signin'), signin_form=form)
+        login_user(user, remember=form.remember_me.data)
+        session['signed'] = True
+        session['username'] = user.username
+        if session.get('next'):
+            next_page = session.get('next')
+            session.pop('next')
+            return redirect(next_page)
+        else:
+            return redirect(url_for('/'))
+    else:
+        session['next'] = request.args.get('next')
+        return render_template('themes/water/signin.html', signin_form=form, page_title='this is Login route')
+
 
 
 if __name__ == '__main__':
