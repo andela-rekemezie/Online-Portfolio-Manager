@@ -1,11 +1,10 @@
-from flask import Flask, render_template,url_for, request
+from flask import Flask, render_template, url_for, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import Form
 from wtforms import StringField, PasswordField, HiddenField, validators
 from wtforms import TextAreaField, BooleanField
 from wtforms.validators import Length, Email
 from wtforms.validators import Optional, DataRequired, EqualTo
-
 
 application = Flask(__name__)
 application.config.from_pyfile('config.py')
@@ -18,7 +17,7 @@ db = SQLAlchemy(application)
 class SignUpForm(Form):
     email = StringField('Email Address', validators=[
         DataRequired('Your email is required'),
-        Length(min=5, message= u'Your email is too short'),
+        Length(min=5, message=u'Your email is too short'),
         Email(message='That\'s not a valid email address')
     ])
     password = PasswordField('Password', validators=[
@@ -95,13 +94,16 @@ def index(username=None):
 
 @application.route('/signup', methods=['POST', 'GET'])
 def signup():
+    import pdb
+    pdb.set_trace()
     if request.method == "POST":
         form = SignUpForm(request.form)
         if form.validate():
             user = User()
             form.populate_obj(user)
-            username_exist = User.query.filter_by(username=form.username.data).first();
+            username_exist = User.query.filter_by(username=form.username.data).first()
             email_exist = User.query.filter_by(email=form.email.data).first()
+            print (username_exist, email_exist)
             if username_exist:
                 form.username.errors.append('User already exists')
             if email_exist:
@@ -110,14 +112,15 @@ def signup():
                 return render_template('themes/water/signup.html', form=form, page_title='Sign up form')
             else:
                 user.firstname = 'firstname',
-                user.lastname ='lastname',
+                user.lastname = 'lastname',
                 user.email = 'email',
                 user.password = 'password',
                 user.portfolio = 'This is a test portfolio',
                 user.avatar = 'http://placehold.it/350/300',
                 db.session.add(user)
                 db.session.commit()
-                return render_template('themes/water/signup-success.html', page_title='Success page on signup', user=user)
+                return render_template('themes/water/signup-success.html', page_title='Success page on signup',
+                                       user=user)
         else:
             return render_template('themes/water/signup.html', form=SignUpForm(), page_title='This is the signup form')
     return render_template('themes/water/signup.html', form=SignUpForm(), page_title='This is the signup form')
@@ -125,7 +128,8 @@ def signup():
 
 @application.route('/login')
 def login():
-    return render_template('themes/water/login.html', page_title= 'this is Login route')
+    return render_template('themes/water/login.html', page_title='this is Login route')
+
 
 if __name__ == '__main__':
     init_db()
