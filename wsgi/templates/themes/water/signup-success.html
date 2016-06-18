@@ -1,11 +1,23 @@
 {% extends "themes/water/base-layout.html" %}
 
 {% block content %}
-    <div class="text-center" style="background-color: #67b168">
-        {% if user %}
-            <p>Congratulations {{ user.username }}</p>
-            <p>you are welcome to Online portfolio management system.</p>
-        {% endif %}
+
+    <div class="row">
+        <div class="col-sm-3">
+        </div>
+        <div class="col-sm-6 well" style="background-color: rgb(255,255,255);">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="alert alert-success"><strong>Congratulations!</strong>
+                            <p> You've been signed up as one of our Online portfolio. Click Sign In
+                                below to began completing your Biography page.</p></div>
+                        <p><a class="btn btn-lg btn-primary btn-success" href="{{ url_for('index') }}">Sign In</a></p>
+                    </div>
+                </div>
+            </div><!--/container-->
+        </div>
+        <div class="col-sm-3">
+        </div>
     </div>
-    <button class="btn-success"><a href="{{ url_for('login') }}">Sign in</a></button>
 {% endblock %}

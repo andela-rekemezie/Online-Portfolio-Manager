@@ -1,7 +1,7 @@
 from flask import Flask, render_template, url_for, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import Form
-from flask_login import LoginManager, login_user, current_user, session, redirect, login_required
+from flask_login import LoginManager, login_user, current_user, session, redirect, login_required, logout_user
 from wtforms import StringField, PasswordField, BooleanField
 from wtforms.validators import Email, DataRequired
 
@@ -128,7 +128,7 @@ def signup():
         if email_exist:
             form.email.errors.append('Email already exists')
         if username_exist or email_exist:
-            return render_template('themes/water/signup.html', sigin_form=LoginForm(), form=form,
+            return render_template('themes/water/signup.html', form=form, signin_form=LoginForm(),
                                    page_title='Sign up form')
         else:
             user.firstname = 'firstname',
@@ -139,18 +139,18 @@ def signup():
             user.avatar = 'http://placehold.it/350/300',
             db.session.add(user)
             db.session.commit()
-            return render_template('themes/water/signup-success.html', page_title='Success page on signup',
+            return render_template('themes/water/signup-success.html', signin_form=LoginForm(), form=form, page_title='Success page on signup',
                                    user=user)
     else:
-        return render_template('themes/water/signup.html', page_title='This is the signup form')
+        return render_template('themes/water/signup.html', signin_form=LoginForm(), form=form, page_title='This is the signup form')
 
 
 @application.route('/signin', methods=['GET', 'POST'])
 def signin():
+    if current_user is not None and current_user.is_authenticated():
+        return redirect(url_for('/'))
     form = LoginForm(request.form)
     if form.validate_on_submit():
-        if current_user is not None and current_user.is_authenticated():
-            return redirect(url_for('/'))
         user = User.query.filter_by(email=form.email.data).first()
         if user is None:
             form.email.errors.append('User does not exist')
@@ -168,10 +168,22 @@ def signin():
             return redirect(url_for('/'))
     else:
         session['next'] = request.args.get('next')
-        return render_template('themes/water/signin.html', signin_form=form, page_title='this is Login route')
+        return render_template('themes/water/signin.html', signin_form=LoginForm(), page_title='this is Login route')
 
+
+@application.route('/profile', methods=['GET', 'POST'])
+def profile():
+    return render_template(url_for('profile'), page_title="Customizable profile page")
+
+
+@application.route('/signout')
+def logout():
+    session.pop('username')
+    session.pop('signed')
+    logout_user()
+    return redirect(url_for('logout'))
 
 
 if __name__ == '__main__':
-    init_db()
+   # init_db()
     application.run(debug=True, host='0.0.0.0', port=9000)
