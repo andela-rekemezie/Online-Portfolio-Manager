@@ -15,66 +15,49 @@
 </head>
 <body>
 <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-    <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
-                    aria-expanded="false" aria-controls="navbar">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="/">Portfolio</a>
-        </div>
+    <div class="navbar-header">
+        <a class="navbar-brand" href="/"><span class="glyphicon">Portfolio</span></a>
+    </div>
+    <div class="navbar-collapse collapse">
         {% if session['signed'] %}
             <ul class="nav navbar-nav navbar-right">
-
                 <li class="dropdown">
                     <a class="dropdown-toggle" href="#">
                         <span></span>
                         Signed in as {{ session['username'] }} <strong class="caret"></strong>
                     </a>
-
                     <ul class="dropdown-menu">
-
                         <li><a href="/{{ session['username'] }}">Your Bio Page</a></li>
-
-                        <li><a href="http://www.pythonblogs.com/%7B%7B%20url_for(%27profile%27)%20%7D%7D">Settings..</a>
-                        </li>
-
+                        <li><a href="{{ url_for('profile') }}">Edit Profile</a></li>
                         <li class="divider"></li>
-
-                        <li><a href="http://www.pythonblogs.com/%7B%7B%20url_for(%27signout%27)%20%7D%7D">Logout</a>
-                        </li>
-
+                        <li><a href="{{ url_for('signout') }}">Logout</a></li>
                     </ul>
                 </li>
             </ul>
         {% else %}
-            {% if not signin_form %}
-                <div id="navbar" class="navbar-collapse collapse">
-                    <form action="{{ url_for('signin') }}" class="navbar-form navbar-right" role="form" method="POST">
-                        {{ signin_form.hidden_tag() }}
-                        <div class="form-group">
-                            {{ signin_form.email(type="text", placeholder="Email", class="form-control") }}
-                        </div>
-                        <div class="form-group">
-                            {{ signin_form.password(type="text", placeholder="Password", class="form-control") }}
-                        </div>
-                        <div class="checkbox">
-                            {{ signin_form.remember_me }}
-                            {{ signin_form.remember_me.label(style="color:rgb(45, 46, 78);") }}
-                            <label for="remember">remember me</label>
-                        </div>
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-success">Sign in</button>
-                        </div>
-                    </form>
-                </div><!--/.navbar-collapse -->
-                </div>
-                </nav>
+            {% if not signinpage_form %}
+                <form action="{{ url_for('signin') }}" class="navbar-form navbar-right" role="form" method="POST">
+                    {{ signin_form.hidden_tag() }}
+                    <div class="form-group">
+                        {{ signin_form.email(type="text", placeholder="Email", class="form-control") }}
+                    </div>
+                    <div class="form-group">
+                        {{ signin_form.password(type="text", placeholder="Password", class="form-control") }}
+                    </div>
+                    <div class="checkbox">
+                        {{ signin_form.remember_me }}
+                        {{ signin_form.remember_me.label(style="color:rgb(45, 46, 78);") }}
+                        <label for="remember">remember me</label>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success">Sign in</button>
+                    </div>
+                </form>
             {% endif %}
         {% endif %}
+    </div>
+</nav>
+
 <div class="container">
     {% block content %}
 

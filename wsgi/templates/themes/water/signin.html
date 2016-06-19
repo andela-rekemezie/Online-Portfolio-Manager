@@ -1,24 +1,24 @@
 {% extends "themes/water/base-layout.html" %}
 
 {% block content %}
-    <div class="container">
-        <form action="{{ url_for('signin') }}" class="navbar-form navbar-right" role="form" method="POST">
-            {{ signin_form.hidden_tag() }}
+    <div class="container col-lg-5">
+        <form action="{{ url_for('signin') }}" method="POST">
+            {{ signinpage_form.hidden_tag() }}
             <div class="form-group">
-                {{ signin_form.email(type="text", placeholder="Email", class="form-control") }}
+                {{ signinpage_form.email.label }}
+                {{ signinpage_form.email(type="text", placeholder="Email", class="form-control") }}
             </div>
             <div class="form-group">
-                {{ signin_form.password(type="password", placeholder="Password", class="form-control") }}
+                {{ signinpage_form.password.label }}
+                {{ signinpage_form.password(type="password", placeholder="Password", class="form-control") }}
             </div>
             <div class="checkbox">
-                {{ signin_form.remember_me }}
-                {{ signin_form.remember_me.label(style="color:rgb(45, 46, 78);") }}
-                <label for="remember">remember me</label>
+                {{ signinpage_form.remember_me }}
+                {{ signinpage_form.remember_me.label(style="color:rgb(45, 46, 78);") }}
             </div>
             <div class="form-group">
                 <button type="submit" class="btn btn-default">Sign in</button>
             </div>
         </form>
     </div>
-
 {% endblock %}
