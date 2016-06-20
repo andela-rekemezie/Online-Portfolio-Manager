@@ -22,12 +22,12 @@
         {% if session['signed'] %}
             <ul class="nav navbar-nav navbar-right">
                 <li class="dropdown">
-                    <a class="dropdown-toggle" href="#">
-                        <span></span>
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        <span class="glyphicon glyphicon-user"></span>
                         Signed in as {{ session['username'] }} <strong class="caret"></strong>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a href="/{{ session['username'] }}">Your Bio Page</a></li>
+                        <li><a href="/{{ session['username'] }}">Your portfolio</a></li>
                         <li><a href="{{ url_for('profile') }}">Edit Profile</a></li>
                         <li class="divider"></li>
                         <li><a href="{{ url_for('signout') }}">Logout</a></li>

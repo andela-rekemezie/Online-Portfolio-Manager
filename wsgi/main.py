@@ -133,7 +133,7 @@ def signup():
         else:
             user.firstname = 'firstname',
             user.lastname = 'lastname',
-            user.email = form.username.data,
+            user.email = form.email.data,
             user.password = form.password.data,
             user.portfolio = 'This is a test portfolio',
             user.avatar = 'http://placehold.it/350/300',
@@ -156,9 +156,9 @@ def signin():
         user = User.query.filter_by(email=form.email.data).first()
         if user is None:
             form.email.errors.append('User does not exist')
-            return render_template(url_for('signin'), signinpage_form=form)
+            return render_template('themes/water/signin.html', signinpage_form=form)
         if user.password != form.password.data:
-            return render_template(url_for('signin'), signinpage_form=form)
+            return render_template('themes/water/signin.html', signinpage_form=form)
         login_user(user, remember=form.remember_me.data)
         session['signed'] = True
         session['username'] = user.username
@@ -176,15 +176,15 @@ def signin():
 
 @application.route('/profile', methods=['GET', 'POST'])
 def profile():
-    return render_template(url_for('profile'), page_title="Customizable profile page")
+    return render_template('themes/water/profile.html', page_title="Customizable profile page")
 
 
 @application.route('/signout')
-def logout():
+def signout():
     session.pop('username')
     session.pop('signed')
     logout_user()
-    return redirect(url_for('logout'))
+    return redirect(url_for('index'))
 
 
 if __name__ == '__main__':
