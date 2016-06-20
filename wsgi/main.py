@@ -182,6 +182,7 @@ def signin():
 
 
 @application.route('/profile', methods=['GET', 'POST'])
+@login_required
 def profile():
     return render_template('themes/water/profile.html', page_title="Customizable profile page")
 
