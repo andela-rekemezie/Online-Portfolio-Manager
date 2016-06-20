@@ -40,6 +40,13 @@ class LoginForm(Form):
     remember_me = BooleanField('Remember', validators=[DataRequired()])
 
 
+# Model definition for portoform
+class PortoForm(Form):
+    title = StringField('Title', validators=[DataRequired()])
+    description = StringField('Description', validators=[DataRequired()])
+    tags = StringField('Tags', validators=[DataRequired()])
+
+
 # Model definition for the User
 class User(db.Model):
     """Remember always not to use commas in your model definitions"""
@@ -111,7 +118,7 @@ def init_db():
                 email='swdev.bali@gmail.com',
                 tagline='A cool coder and an even cooler Capoeirista',
                 biography='I love Python very much!',
-                avatar='http://placekitten.com/200/300')
+                avatar='http://placekitten.com/500/300')
     user.portfolio.append(Portfolio(title='awesome', description='Great description', tags='python,django'))
     user.portfolio.append(Portfolio(title='awesome123', description='Great description123', tags='java,javascript'))
     db.session.add(user)
@@ -135,9 +142,10 @@ def index(username=None):
         user.avatar = 'http://placekitten.com/350/300'
         db.session.add(user)
         db.session.commit()
-        return render_template('themes/water/portfolio.html', signin_form=LoginForm(),
+        return render_template('themes/water/portfolio.html', signin_form=LoginForm(), portoform=PortoForm(),
                                page_title='This is the new guys in Town: ' + username, user=user)
-    return render_template("themes/water/portfolio.html", signin_form=LoginForm(), page_title=username, user=user)
+    return render_template("themes/water/portfolio.html", signin_form=LoginForm(), portoform=PortoForm(),
+                           page_title=username, user=user)
 
 
 @application.route('/signup', methods=['GET', 'POST'])

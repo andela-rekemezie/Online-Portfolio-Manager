@@ -7,43 +7,47 @@
             {{ user.tagline }}
         </div>
         <div class="col-sm-4" style="border-right-style: solid;">
-            <img src="{{ user.avatar }}" alt="Avatar of user">
+            <img class="img-responsive img-rounded" src="{{ user.avatar }}" alt="Avatar of user">
             <div class="justify">
                 {{ user.biography }}
             </div>
         </div>
 
-        <div class="col-lg-8">
+        <div class="col-sm-8">
             <div class="row">
                 <div class="col-sm-12">
                     <div class="navbar-left"></div>
-                    <form action="" class="navbar-left">
+                    <form class="navbar-form navbar-right" role="search">
                         <button type="button" class="btn btn-primary btn-sm btn-success" data-toggle="modal"
-                                data-target="#photo_form">
+                                data-target="#porto_form">
                             Add
                         </button>
                         <div class="form-group">
-                            <input type="text" class="form-control">
+                            <input type="text" class="form-control" placeholder="Search">
                         </div>
-                        <button class="btn-default" type="submit"></button>
+                        <button class="btn-default" type="submit"><span class="glyphicon glyphicon-search"></span>
+                        </button>
                     </form>
                 </div>
             </div>
             <div class="container">
                 <ul class="list-group">
-                    {% for porto in user.portfolio %}
+                    {% for portoform in user.portfolio %}
                         <li class="list-group-item">
                             <div class="row">
                                 <div class="col-sm-5">
-                                    <a href=""><span></span></a> <a href=""><span></span></a>
+                                    <a href=""><span class="glyphicon glyphicon-edit"></span></a> <a href=""><span
+                                        class="glyphicon glyphicon-remove"></span></a>
                                     <strong>
-                                        {{ porto.title }}
+                                        {{ portoform.title }}
                                     </strong>
-                                    {{ porto.description }}
+                                    <p>
+                                        {{ portoform.description }}
+                                    </p>
                                 </div>
                                 <div class="col-sm-7">
-                                    {% for tag in porto.tags.split(',') %}
-                                        <span>{{ tag }}</span>
+                                    {% for tag in portoform.tags.split(',') %}
+                                        <span class="badge badge-important pull-right">{{ tag }}</span>
                                     {% endfor %}
                                 </div>
                             </div>
@@ -52,22 +56,42 @@
                 </ul>
             </div>
         </div>
-    </div>
+    </div> <!-- row -->
 
     <div class="modal fade" id="porto_form" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" aria-hidden="true"><span
                             aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title" id="myModalLabel">Portfolio</h4>
                 </div>
                 <div class="modal-body">
-                    ...Testing application modal...
+                    <div class="row">
+                        <div class="col-sm-1"></div>
+                        <div class="col-sm-10">
+                            <form action="" class="form-horizontal" method="POST">
+                                {{ portoform.hidden_tag() }}
+                                <div class="form-group">
+                                    {{ portoform.title.label }}
+                                    {{ portoform.title(placeholder="Add title", class="form-control") }}
+                                </div>
+                                <div class="form-group">
+                                    {{ portoform.description.label }}
+                                    {{ portoform.description(class="form-control", placeholder="Add a description for your title") }}
+                                </div>
+                                <div class="form-group">
+                                    {{ portoform.tags.label }}
+                                    {{ portoform.tags(placeholder="Add your skill sets", class="form-control") }}
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-sm-1"></div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
+                    <button type="button" class="btn btn-primary">Save</button>
                 </div>
             </div>
         </div>
