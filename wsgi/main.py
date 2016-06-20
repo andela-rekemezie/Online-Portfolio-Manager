@@ -53,19 +53,20 @@ class User(db.Model):
     email = db.Column(db.String(255), unique=True)
     time_registered = db.Column(db.DateTime)
     avatar = db.Column(db.String(255))
-    portfolio = db.Column(db.String(255))
+    biography = db.Column(db.String(255))
     active = db.Column(db.Boolean, default=False)
+    portfolio = db.relationship('Portfolio')
 
     def __init__(self, password=None, username=None, firstname=None, lastname=None, email=None, tagline=None,
-                 avatar=None, portfolio=None, active=None):
-        self.username = username,
-        self.firstname = firstname,
-        self.lastname = lastname,
-        self.email = email,
-        self.portfolio = portfolio,
-        self.password = password,
-        self.avatar = avatar,
-        self.tagline = tagline,
+                 avatar=None, biography=None, active=None):
+        self.username = username
+        self.firstname = firstname
+        self.lastname = lastname
+        self.email = email
+        self.biography = biography
+        self.password = password
+        self.avatar = avatar
+        self.tagline = tagline
         self.active = active
 
     @staticmethod
@@ -83,6 +84,20 @@ class User(db.Model):
         return self.id
 
 
+class Portfolio(db.Model):
+    # __tablename__ = 'portfolios'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(60), unique=True)
+    description = db.Column(db.Text)
+    tags = db.Column(db.Text)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    def __init__(self, title=None, description=None, tags=None):
+        self.description = description
+        self.tags = tags
+        self.title = title
+
+
 def hash_password(string):
     hash_salt = string + application.config['SECRET_KEY']
     return hashlib.sha224(hash_salt).hexdigest()
@@ -91,12 +106,15 @@ def hash_password(string):
 def init_db():
     db.drop_all()
     db.create_all()
-    db.session.add(User(username='ekowibowo', firstname='Eko',
-                        lastname='Suprapto Wibowo', password=hash_password('rahasia'),
-                        email='swdev.bali@gmail.com',
-                        tagline='A cool coder and an even cooler Capoeirista',
-                        portfolio='I love Python very much!',
-                        avatar='http://placekitten.com/200/300'))
+    user = User(username='ekowibowo', firstname='Eko',
+                lastname='Suprapto Wibowo', password=hash_password('rahasia'),
+                email='swdev.bali@gmail.com',
+                tagline='A cool coder and an even cooler Capoeirista',
+                biography='I love Python very much!',
+                avatar='http://placekitten.com/200/300')
+    user.portfolio.append(Portfolio(title='awesome', description='Great description', tags='python,django'))
+    user.portfolio.append(Portfolio(title='awesome123', description='Great description123', tags='java,javascript'))
+    db.session.add(user)
     db.session.commit()
 
 
@@ -112,7 +130,7 @@ def index(username=None):
         user.username = username
         user.firstname = 'Tony'
         user.lastname = 'Adamma'
-        user.portfolio = 'Pleased and Awesome is the day I was born and I have got every \
+        user.biography = 'Pleased and Awesome is the day I was born and I have got every \
         reason to be happy for the Lord of Host has made me glad at all times'
         user.avatar = 'http://placekitten.com/350/300'
         db.session.add(user)
@@ -142,7 +160,7 @@ def signup():
             user.lastname = 'lastname',
             user.email = form.email.data,
             user.password = hash_password(form.password.data),
-            user.portfolio = 'This is a test portfolio',
+            user.biography = 'This is a test portfolio',
             user.avatar = 'http://placehold.it/350/300',
             db.session.add(user)
             db.session.commit()
@@ -196,5 +214,5 @@ def signout():
 
 
 if __name__ == '__main__':
-    # init_db()
+    init_db()
     application.run(debug=True, host='0.0.0.0', port=9000)
