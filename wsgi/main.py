@@ -1,3 +1,5 @@
+import hashlib
+
 from flask import Flask, render_template, url_for, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import Form
@@ -81,11 +83,16 @@ class User(db.Model):
         return self.id
 
 
+def hash_password(string):
+    hash_salt = string + application.config['SECRET_KEY']
+    return hashlib.sha224(hash_salt).hexdigest()
+
+
 def init_db():
     db.drop_all()
     db.create_all()
     db.session.add(User(username='ekowibowo', firstname='Eko',
-                        lastname='Suprapto Wibowo', password='rahasia',
+                        lastname='Suprapto Wibowo', password=hash_password('rahasia'),
                         email='swdev.bali@gmail.com',
                         tagline='A cool coder and an even cooler Capoeirista',
                         portfolio='I love Python very much!',
@@ -134,7 +141,7 @@ def signup():
             user.firstname = 'firstname',
             user.lastname = 'lastname',
             user.email = form.email.data,
-            user.password = form.password.data,
+            user.password = hash_password(form.password.data),
             user.portfolio = 'This is a test portfolio',
             user.avatar = 'http://placehold.it/350/300',
             db.session.add(user)
@@ -157,7 +164,7 @@ def signin():
         if user is None:
             form.email.errors.append('User does not exist')
             return render_template('themes/water/signin.html', signinpage_form=form)
-        if user.password != form.password.data:
+        if user.password != hash_password(form.password.data):
             return render_template('themes/water/signin.html', signinpage_form=form)
         login_user(user, remember=form.remember_me.data)
         session['signed'] = True
