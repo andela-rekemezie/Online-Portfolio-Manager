@@ -1,10 +1,12 @@
 import hashlib
+import json
+from collections import OrderedDict
 
 from flask import Flask, render_template, url_for, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import Form
 from flask_login import LoginManager, login_user, current_user, session, redirect, login_required, logout_user
-from wtforms import StringField, PasswordField, BooleanField
+from wtforms import StringField, PasswordField, BooleanField, HiddenField
 from wtforms.validators import Email, DataRequired
 
 application = Flask(__name__)
@@ -42,6 +44,7 @@ class LoginForm(Form):
 
 # Model definition for portoform
 class PortoForm(Form):
+    portfolio_id = HiddenField()
     title = StringField('Title', validators=[DataRequired()])
     description = StringField('Description', validators=[DataRequired()])
     tags = StringField('Tags', validators=[DataRequired()])
@@ -103,6 +106,12 @@ class Portfolio(db.Model):
         self.description = description
         self.tags = tags
         self.title = title
+
+    def _asdict(self):
+        result = OrderedDict()
+        for key in self.__mapper_.c.keys():
+            result[key] = getattr(self, key)
+        return result
 
 
 def hash_password(string):
@@ -219,6 +228,40 @@ def signout():
     session.pop('signed')
     logout_user()
     return redirect(url_for('index'))
+
+
+@application.route('/get_portfolio/<id>')
+@login_required
+def get_portfolio(id):
+    portfolio = Portfolio.query.get(id)
+    return json.dumps(portfolio._asdict())
+
+
+@application.route('/portfolio_add_update', methods=['GET', 'POST'])
+@login_required
+def porfolio_add_update():
+    print 'I got here'
+    import pdb
+    pdb.set_trace()
+    form = PortoForm(request.form)
+    if form.validate():
+        result = {'iserror': False}
+        if not form.portfolio_id.data:
+            user = User.query.filter_by(username=session['username']).first()
+            if user is not None:
+                user.portfolio.append(title=form.title.data, description=form.description.data, tags=form.tags.data)
+                db.session.commit()
+                result['savedsuccess'] = True
+            else:
+                result['savedsuccess'] =False
+            portfolio = Portfolio.query.get(get_portfolio(form.portfolio_id.data))
+            form.populate_obj(portfolio)
+            result['savedsuccess']=True
+            return json.dumps(result)
+        form.errors['iserror'] = True
+        return json.dumps(form.errors)
+
+
 
 
 if __name__ == '__main__':

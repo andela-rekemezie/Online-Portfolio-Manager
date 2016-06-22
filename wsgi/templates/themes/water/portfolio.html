@@ -1,6 +1,7 @@
 {% extends "themes/water/base-layout.html" %}
 
 {% block content %}
+    <link rel="stylesheet" href="{{ url_for('static', filename="bootstrap-tagsinput-latest/dist/bootstrap-tagsinput.css")}}">
     <div class="row" style="padding-top: 50pxs;">
         <div class="page-header">
             <h1>{{ user.firstname }} {{ user.lastname }}</h1>
@@ -19,7 +20,7 @@
                     <div class="navbar-left"></div>
                     <form class="navbar-form navbar-right" role="search">
                         <button type="button" class="btn btn-primary btn-sm btn-success" data-toggle="modal"
-                                data-target="#porto_form">
+                                data-target="#porto_form" id="portoform-btnadd">
                             Add
                         </button>
                         <div class="form-group">
@@ -70,19 +71,23 @@
                     <div class="row">
                         <div class="col-sm-1"></div>
                         <div class="col-sm-10">
-                            <form action="" class="form-horizontal" method="POST">
+                            <form action="" class="form-horizontal" method="POST" id="portform">
+                                {{ portoform.portfolio_id }}
                                 {{ portoform.hidden_tag() }}
                                 <div class="form-group">
                                     {{ portoform.title.label }}
-                                    {{ portoform.title(placeholder="Add title", class="form-control") }}
+                                    {{ portoform.title(placeholder="Add title", id="title", class="form-control") }}
+                                    <p id="title_errors"></p>
                                 </div>
                                 <div class="form-group">
                                     {{ portoform.description.label }}
-                                    {{ portoform.description(class="form-control", placeholder="Add a description for your title") }}
+                                    {{ portoform.description(class="form-control", id="description", placeholder="Add a description for your title") }}
+                                     <p id="description_errors"></p>
                                 </div>
                                 <div class="form-group">
                                     {{ portoform.tags.label }}
-                                    {{ portoform.tags(placeholder="Add your skill sets", class="form-control", **{'data-role':"tagsinput"}) }}
+                                    {{ portoform.tags(placeholder="Add your skill sets", id="tags", class="form-control", **{'data-role':"tagsinput"}) }}
+                                    <p id="tags_errors"></p>
                                 </div>
                         </div>
                         <div class="col-sm-1"></div>
@@ -90,7 +95,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save</button>
+                    <button type="submit" id="portform_btnsave" class="btn btn-primary">Save</button>
                 </div>
             </div>
         </div>
