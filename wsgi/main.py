@@ -1,19 +1,10 @@
 import hashlib
 import json
-from collections import OrderedDict
-
-from flask import Flask, render_template, url_for, request
-from flask_sqlalchemy import SQLAlchemy
-from flask_wtf import Form
+from flask import render_template, url_for, request
 from flask_login import LoginManager, login_user, current_user, session, redirect, login_required, logout_user
-from wtforms import StringField, PasswordField, BooleanField, HiddenField
-from wtforms.validators import Email, DataRequired
-
-application = Flask(__name__)
-application.config.from_pyfile('config.py')
-application.config['CSRF_ENABLED'] = True,
-application.config['SECRET_KEY'] = 'THIS IS THE SECRET FOR THE GATEWAY'
-db = SQLAlchemy(application)
+from __init__ import db, application
+from models import User, Portfolio
+from form import LoginForm, SignupForm, PortoForm
 
 # Three steps to use flask-login
 login_manager = LoginManager()
@@ -27,111 +18,9 @@ def load_user(id):
     return User.query.get(id)
 
 
-# Model definition for the signup form
-class SignupForm(Form):
-    email = StringField('Email Address', validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    agree = BooleanField('Agree', validators=[DataRequired()])
-    username = StringField('Username', validators=[DataRequired()])
-
-
-# Model definition for login form
-class LoginForm(Form):
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    remember_me = BooleanField('Remember', validators=[DataRequired()])
-
-
-# Model definition for portoform
-class PortoForm(Form):
-    portfolio_id = HiddenField()
-    title = StringField('Title', validators=[DataRequired()])
-    description = StringField('Description', validators=[DataRequired()])
-    tags = StringField('Tags', validators=[DataRequired()])
-
-
-# Model definition for the User
-class User(db.Model):
-    """Remember always not to use commas in your model definitions"""
-    __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(255), unique=True)
-    firstname = db.Column(db.String(56))
-    lastname = db.Column(db.String(69))
-    tagline = db.Column(db.String(60))
-    password = db.Column(db.String)
-    email = db.Column(db.String(255), unique=True)
-    time_registered = db.Column(db.DateTime)
-    avatar = db.Column(db.String(255))
-    biography = db.Column(db.String(255))
-    active = db.Column(db.Boolean, default=False)
-    portfolio = db.relationship('Portfolio')
-
-    def __init__(self, password=None, username=None, firstname=None, lastname=None, email=None, tagline=None,
-                 avatar=None, biography=None, active=None):
-        self.username = username
-        self.firstname = firstname
-        self.lastname = lastname
-        self.email = email
-        self.biography = biography
-        self.password = password
-        self.avatar = avatar
-        self.tagline = tagline
-        self.active = active
-
-    @staticmethod
-    def is_anonymous():
-        return False
-
-    def is_active(self):
-        return self.active
-
-    @staticmethod
-    def is_authenticated():
-        return True
-
-    def get_id(self):
-        return self.id
-
-
-class Portfolio(db.Model):
-    # __tablename__ = 'portfolios'
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(60), unique=True)
-    description = db.Column(db.Text)
-    tags = db.Column(db.Text)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-
-    def __init__(self, title=None, description=None, tags=None):
-        self.description = description
-        self.tags = tags
-        self.title = title
-
-    def _asdict(self):
-        result = OrderedDict()
-        for key in self.__mapper_.c.keys():
-            result[key] = getattr(self, key)
-        return result
-
-
 def hash_password(string):
     hash_salt = string + application.config['SECRET_KEY']
     return hashlib.sha224(hash_salt).hexdigest()
-
-
-def init_db():
-    db.drop_all()
-    db.create_all()
-    user = User(username='ekowibowo', firstname='Eko',
-                lastname='Suprapto Wibowo', password=hash_password('rahasia'),
-                email='swdev.bali@gmail.com',
-                tagline='A cool coder and an even cooler Capoeirista',
-                biography='I love Python very much!',
-                avatar='http://placekitten.com/500/300')
-    user.portfolio.append(Portfolio(title='awesome', description='Great description', tags='python,django'))
-    user.portfolio.append(Portfolio(title='awesome123', description='Great description123', tags='java,javascript'))
-    db.session.add(user)
-    db.session.commit()
 
 
 @application.route('/')
@@ -246,19 +135,35 @@ def portfolio_add_update():
         if not form.portfolio_id.data:
             user = User.query.filter_by(username=session['username']).first()
             if user is not None:
-                user.portfolio.append(Portfolio(title=form.title.data, description=form.description.data, tags=form.tags.data))
+                user.portfolio.append(
+                    Portfolio(title=form.title.data, description=form.description.data, tags=form.tags.data))
                 print 'id form in question', form.portfolio_id
                 db.session.commit()
                 result['savedsuccess'] = True
             else:
-                result['savedsuccess'] =False
+                result['savedsuccess'] = False
                 portfolio = Portfolio.query.get(get_portfolio(form.portfolio_id.data))
                 form.populate_obj(portfolio)
-                result['savedsuccess']=True
+                result['savedsuccess'] = True
             return json.dumps(result)
 
     form.errors['iserror'] = True
     return json.dumps(form.errors)
+
+
+def init_db():
+    db.drop_all()
+    db.create_all()
+    user = User(username='ekowibowo', firstname='Eko',
+                lastname='Suprapto Wibowo', password=hash_password('rahasia'),
+                email='swdev.bali@gmail.com',
+                tagline='A cool coder and an even cooler Capoeirista',
+                biography='I love Python very much!',
+                avatar='http://placekitten.com/500/300')
+    user.portfolio.append(Portfolio(title='awesome', description='Great description', tags='python,django'))
+    user.portfolio.append(Portfolio(title='awesome123', description='Great description123', tags='java,javascript'))
+    db.session.add(user)
+    db.session.commit()
 
 
 if __name__ == '__main__':
