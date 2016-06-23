@@ -1,4 +1,5 @@
 $('#porform-btnadd').on('click', function () {
+   alert('Got into the add button')
     $('#portfolio_id').val('');
     $('#title').val('');
     $('#description').val('');
@@ -22,10 +23,11 @@ function editPortfolioForm(id) {
     })
 }
 
-$('#portform_btnsave').click(function () {
-    console.log('This is the portform button');
-    console.log($('#portform').serialize());
-    $.post("/portfolio_add_update", $('#portform').serialize(), function (data, textStatus) {
+
+$('#portform_btnsave').on('click', function () {
+    alert("This is the amazing side of it all");
+    $.post("{{ url_for('/portfolio_add_update')}}", $('#portform').serialize(), function (data, textStatus) {
+        debugger;
         var errors = $.parseJSON(data);
         $('#description_errors').text('');
         $('#title_errors').text('');

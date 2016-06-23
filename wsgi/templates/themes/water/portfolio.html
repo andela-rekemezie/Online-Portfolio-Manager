@@ -1,7 +1,8 @@
 {% extends "themes/water/base-layout.html" %}
 
 {% block content %}
-    <link rel="stylesheet" href="{{ url_for('static', filename="bootstrap-tagsinput-latest/dist/bootstrap-tagsinput.css")}}">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename="bootstrap-tagsinput-latest/dist/bootstrap-tagsinput.css") }}">
     <div class="row" style="padding-top: 50pxs;">
         <div class="page-header">
             <h1>{{ user.firstname }} {{ user.lastname }}</h1>
@@ -77,17 +78,17 @@
                                 <div class="form-group">
                                     {{ portoform.title.label }}
                                     {{ portoform.title(placeholder="Add title", id="title", class="form-control") }}
-                                    <p id="title_errors"></p>
+                                    <p class="help-block" id="title_errors"></p>
                                 </div>
                                 <div class="form-group">
                                     {{ portoform.description.label }}
                                     {{ portoform.description(class="form-control", id="description", placeholder="Add a description for your title") }}
-                                     <p id="description_errors"></p>
+                                    <p class="help-block" id="description_errors"></p>
                                 </div>
                                 <div class="form-group">
                                     {{ portoform.tags.label }}
                                     {{ portoform.tags(placeholder="Add your skill sets", id="tags", class="form-control", **{'data-role':"tagsinput"}) }}
-                                    <p id="tags_errors"></p>
+                                    <p class="help-block" id="tags_errors"></p>
                                 </div>
                         </div>
                         <div class="col-sm-1"></div>
@@ -100,4 +101,29 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block footer %}
+    <script>
+        $(document).ready(function () {
+
+            $('#portform_btnsave').on('click', function () {
+                $.post("{{ url_for('portfolio_add_update')}}", $('#portform').serialize(), function (data, textStatus) {
+                    var errors = $.parseJSON(data);
+                    console.log(errors);
+                    $('#description_errors').text('');
+                    $('#title_errors').text('');
+                    $('#tags_errors').text('');
+                    if(errors.iserror){
+                        if(errors.title != undefined){$('#title_errors').text(errors.title[0])}
+                        if(errors.description != undefined){$('#description_errors').text(errors.description[0])}
+                        if(errors.tags != undefined){$('#tags_errors').text(errors.tags[0])}
+                    } else if(errors.savedsuccess){
+                        $('#porto_form').modal('hide');
+                        location.reload();
+                    }
+                })
+            });
+        });
+    </script>
 {% endblock %}

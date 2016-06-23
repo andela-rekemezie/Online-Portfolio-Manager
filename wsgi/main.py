@@ -238,30 +238,27 @@ def get_portfolio(id):
 
 
 @application.route('/portfolio_add_update', methods=['GET', 'POST'])
-@login_required
-def porfolio_add_update():
-    print 'I got here'
-    import pdb
-    pdb.set_trace()
+# @login_required
+def portfolio_add_update():
     form = PortoForm(request.form)
     if form.validate():
         result = {'iserror': False}
         if not form.portfolio_id.data:
             user = User.query.filter_by(username=session['username']).first()
             if user is not None:
-                user.portfolio.append(title=form.title.data, description=form.description.data, tags=form.tags.data)
+                user.portfolio.append(Portfolio(title=form.title.data, description=form.description.data, tags=form.tags.data))
+                print 'id form in question', form.portfolio_id
                 db.session.commit()
                 result['savedsuccess'] = True
             else:
                 result['savedsuccess'] =False
-            portfolio = Portfolio.query.get(get_portfolio(form.portfolio_id.data))
-            form.populate_obj(portfolio)
-            result['savedsuccess']=True
+                portfolio = Portfolio.query.get(get_portfolio(form.portfolio_id.data))
+                form.populate_obj(portfolio)
+                result['savedsuccess']=True
             return json.dumps(result)
-        form.errors['iserror'] = True
-        return json.dumps(form.errors)
 
-
+    form.errors['iserror'] = True
+    return json.dumps(form.errors)
 
 
 if __name__ == '__main__':
