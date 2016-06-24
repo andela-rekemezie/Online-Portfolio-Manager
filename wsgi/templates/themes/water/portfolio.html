@@ -34,11 +34,15 @@
             </div>
             <div class="container">
                 <ul class="list-group">
+                    {% if user.portfolio %}
+                        Please add your portfolio!
+                    {% endif %}
                     {% for portoform in user.portfolio %}
                         <li class="list-group-item">
                             <div class="row">
                                 <div class="col-sm-5">
-                                    <a href=""><span class="glyphicon glyphicon-edit"></span></a> <a href=""><span
+                                    <a href=""><span class="glyphicon glyphicon-edit"></span></a> <a
+                                        href="javascript:deletePortfolio('{{ portoform.id }}');"><span
                                         class="glyphicon glyphicon-remove"></span></a>
                                     <strong>
                                         {{ portoform.title }}
@@ -78,17 +82,18 @@
                                 <div class="form-group">
                                     {{ portoform.title.label }}
                                     {{ portoform.title(placeholder="Add title", id="title", class="form-control") }}
-                                    <p class="help-block" id="title_errors"></p>
+                                    <p class="help-block" id="title_errors">{{ portoform.title.errors[0] }}</p>
                                 </div>
                                 <div class="form-group">
                                     {{ portoform.description.label }}
                                     {{ portoform.description(class="form-control", id="description", placeholder="Add a description for your title") }}
-                                    <p class="help-block" id="description_errors"></p>
+                                    <p class="help-block"
+                                       id="description_errors">{{ portoform.description.errors[0] }}</p>
                                 </div>
                                 <div class="form-group">
                                     {{ portoform.tags.label }}
                                     {{ portoform.tags(placeholder="Add your skill sets", id="tags", class="form-control", **{'data-role':"tagsinput"}) }}
-                                    <p class="help-block" id="tags_errors"></p>
+                                    <p class="help-block" id="tags_errors">{{ portoform.description.errors[0] }}</p>
                                 </div>
                         </div>
                         <div class="col-sm-1"></div>
@@ -102,28 +107,48 @@
         </div>
     </div>
 {% endblock %}
+{#<script src="{{ url_for('static', filename="js/bootbox.min.js") }}"></script>#}
 
 {% block footer %}
     <script>
         $(document).ready(function () {
-
-            $('#portform_btnsave').on('click', function () {
-                $.post("{{ url_for('portfolio_add_update')}}", $('#portform').serialize(), function (data, textStatus) {
+        });
+        $('#portform_btnsave').click(function (e) {
+            e.preventDefault();
+            $.ajax({
+                url: "{{ url_for('portfolio_add_update') }}",
+                method: 'POST',
+                data: $('#portform').serialize(),
+                success: function (data, textStatus) {
                     var errors = $.parseJSON(data);
-                    console.log(errors);
                     $('#description_errors').text('');
                     $('#title_errors').text('');
                     $('#tags_errors').text('');
-                    if(errors.iserror){
-                        if(errors.title != undefined){$('#title_errors').text(errors.title[0])}
-                        if(errors.description != undefined){$('#description_errors').text(errors.description[0])}
-                        if(errors.tags != undefined){$('#tags_errors').text(errors.tags[0])}
-                    } else if(errors.savedsuccess){
+                    if (errors.iserror) {
+                        if (errors.title != undefined) $('#title_errors').text(errors.title[0]);
+                        if (errors.description != undefined) $('#description_errors').text(errors.description[0]);
+                        if (errors.tags != undefined) $('#tags_errors').text(errors.tags[0]);
+                    } else if (errors.savedsuccess) {
                         $('#porto_form').modal('hide');
                         location.reload();
                     }
-                })
+                }
             });
         });
+
+        function deletePortfolio(id) {
+            alert('got in here man');
+            bookbox.confirm('<strong>Delete Information</strong> Are you sure you want to delete your profile?', function (result) {
+                if (result) {
+                    $.getJSON('/delete_portfolio' + id, {})
+                            .then(function (data) {
+                                location.reload();
+                            })
+                            .error(function (data, textStatus, xhr) {
+                                alert("data: " + data + "textStatus " + textStatus + "xhr " + xhr)
+                            })
+                }
+            })
+        }
     </script>
 {% endblock %}

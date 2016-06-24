@@ -130,14 +130,13 @@ def get_portfolio(id):
 # @login_required
 def portfolio_add_update():
     form = PortoForm(request.form)
-    if form.validate():
+    if form.validate_on_submit():
         result = {'iserror': False}
         if not form.portfolio_id.data:
             user = User.query.filter_by(username=session['username']).first()
             if user is not None:
                 user.portfolio.append(
                     Portfolio(title=form.title.data, description=form.description.data, tags=form.tags.data))
-                print 'id form in question', form.portfolio_id
                 db.session.commit()
                 result['savedsuccess'] = True
             else:
@@ -151,13 +150,23 @@ def portfolio_add_update():
     return json.dumps(form.errors)
 
 
+@application.route('/delete_portfolio/<id>', methods=['DELETE'])
+@login_required
+def delete_portfolio(id):
+    portfolio = Portfolio.query.get(id)
+    db.session.delete(portfolio)
+    db.session.commit()
+    result = {'result': 'success'}
+    return json.dumps(result)
+
+
 def init_db():
     db.drop_all()
     db.create_all()
-    user = User(username='ekowibowo', firstname='Eko',
-                lastname='Suprapto Wibowo', password=hash_password('rahasia'),
+    user = User(username='"Xampper', firstname='Prusilla',
+                lastname='Anonymous', password=hash_password('maska'),
                 email='swdev.bali@gmail.com',
-                tagline='A cool coder and an even cooler Capoeirista',
+                tagline='Incredibly fast programmer',
                 biography='I love Python very much!',
                 avatar='http://placekitten.com/500/300')
     user.portfolio.append(Portfolio(title='awesome', description='Great description', tags='python,django'))
