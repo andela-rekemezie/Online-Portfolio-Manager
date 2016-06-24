@@ -9,13 +9,13 @@ from form import LoginForm, SignupForm, PortoForm
 # Three steps to use flask-login
 login_manager = LoginManager()
 login_manager.init_app(application)
-login_manager.login_view = '/signin'
+login_manager.login_view = 'signin'
 
 
 # adding user loader decorator
 @login_manager.user_loader
-def load_user(id):
-    return User.query.get(id)
+def load_user(user_id):
+    return User.query.get(user_id)
 
 
 def hash_password(string):
@@ -119,15 +119,15 @@ def signout():
     return redirect(url_for('index'))
 
 
-@application.route('/get_portfolio/<id>')
-@login_required
-def get_portfolio(id):
-    portfolio = Portfolio.query.get(id)
+@application.route('/get_portofolio/<int:user_id>')
+# @login_required
+def get_portofolio(user_id):
+    portfolio = Portfolio.query.get(user_id)
     return json.dumps(portfolio._asdict())
 
 
 @application.route('/portfolio_add_update', methods=['GET', 'POST'])
-# @login_required
+#@login_required
 def portfolio_add_update():
     form = PortoForm(request.form)
     if form.validate_on_submit():
@@ -141,7 +141,7 @@ def portfolio_add_update():
                 result['savedsuccess'] = True
             else:
                 result['savedsuccess'] = False
-                portfolio = Portfolio.query.get(get_portfolio(form.portfolio_id.data))
+                portfolio = Portfolio.query.get(get_portofolio(form.portfolio_id.data))
                 form.populate_obj(portfolio)
                 result['savedsuccess'] = True
             return json.dumps(result)
@@ -150,10 +150,10 @@ def portfolio_add_update():
     return json.dumps(form.errors)
 
 
-@application.route('/delete_portfolio/<id>', methods=['DELETE'])
-@login_required
-def delete_portfolio(id):
-    portfolio = Portfolio.query.get(id)
+@application.route('/delete_portfolio/<int:user_id>')
+# @login_required
+def delete_portfolio(user_id):
+    portfolio = Portfolio.query.get(user_id)
     db.session.delete(portfolio)
     db.session.commit()
     result = {'result': 'success'}

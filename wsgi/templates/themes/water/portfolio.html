@@ -41,7 +41,8 @@
                         <li class="list-group-item">
                             <div class="row">
                                 <div class="col-sm-5">
-                                    <a href=""><span class="glyphicon glyphicon-edit"></span></a> <a
+                                    <a href="javascript:editPortfolioForm('{{ portoform.id }}');"><span
+                                            class="glyphicon glyphicon-edit"></span></a> <a
                                         href="javascript:deletePortfolio('{{ portoform.id }}');"><span
                                         class="glyphicon glyphicon-remove"></span></a>
                                     <strong>
@@ -107,12 +108,13 @@
         </div>
     </div>
 {% endblock %}
-{#<script src="{{ url_for('static', filename="js/bootbox.min.js") }}"></script>#}
+<script src="{{ url_for('static', filename="js/bootbox.min.js") }}"></script>
 
 {% block footer %}
     <script>
         $(document).ready(function () {
         });
+
         $('#portform_btnsave').click(function (e) {
             e.preventDefault();
             $.ajax({
@@ -136,19 +138,36 @@
             });
         });
 
+        function editPortfolioForm(id) {
+            alert(id, +"got here man")
+            $('#portofolio_id').val(id);
+            $.getJSON('/get_portofolio/' + id)
+                    .done(function (data) {
+                        $('#portofolio_id').val(data.id);
+                        $('#title').val(data.title);
+                        $('#description').val(data.description);
+                        $('#tags').tagsinput('removeAll');
+                        $('#tags').tagsinput('add', data.tags);
+                        $('#porto_form').modal('show');
+                    }).error(function (data, textstatus, xhr) {
+                console.log(data, textstatus, xhr)
+            })
+        }
+
         function deletePortfolio(id) {
-            alert('got in here man');
-            bookbox.confirm('<strong>Delete Information</strong> Are you sure you want to delete your profile?', function (result) {
+            bootbox.confirm('<strong>Delete Information</strong> <p>Are you sure you want to delete your profile?</p>', function (result) {
                 if (result) {
-                    $.getJSON('/delete_portfolio' + id, {})
-                            .then(function (data) {
+                    $.getJSON('/delete_portfolio/' + id)
+                            .done(function (data) {
                                 location.reload();
                             })
-                            .error(function (data, textStatus, xhr) {
-                                alert("data: " + data + "textStatus " + textStatus + "xhr " + xhr)
+                            .error(function (data, statusText) {
+                                console.log(statusText);
+                                console.log("data: " + data.status + "textStatus " + statusText)
                             })
                 }
             })
         }
+
     </script>
 {% endblock %}

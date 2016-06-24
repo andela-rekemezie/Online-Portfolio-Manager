@@ -61,6 +61,6 @@ class Portfolio(db.Model):
 
     def _asdict(self):
         result = OrderedDict()
-        for key in self.__mapper_.c.keys():
+        for key in self.__mapper__.c.keys():
             result[key] = getattr(self, key)
         return result

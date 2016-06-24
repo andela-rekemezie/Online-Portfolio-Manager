@@ -12,7 +12,7 @@ function editPortfolioForm(id) {
     $('#portofolio_id').val();
     $.getJSON('/get_portoflio/' + id, {})
         .then(function (data) {
-            $('#portofolio_id').val();
+            $('#portofolio_id').val(data.id);
             $('#title').val(data.title);
             $('#description').val(data.description);
             $('#tags').tagsinput('removeAll');
