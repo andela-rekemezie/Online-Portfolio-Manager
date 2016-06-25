@@ -18,6 +18,7 @@ class User(db.Model):
     biography = db.Column(db.String(255))
     active = db.Column(db.Boolean, default=False)
     portfolio = db.relationship('Portfolio')
+    currently_live_in = db.Column(db.String(100))
 
     def __init__(self, password=None, username=None, firstname=None, lastname=None, email=None, tagline=None,
                  avatar=None, biography=None, active=None):

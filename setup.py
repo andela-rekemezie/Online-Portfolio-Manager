@@ -12,6 +12,7 @@ setup(name='Portfolio',
           'SQLAlchemy>=0.8.0',
           'Flask-SQLAlchemy==2.1',
           'Flask-Login==0.3.2',
-          'Flask-WTF==0.12'
+          'Flask-WTF==0.12',
+          'alembic'
       ],
       )
