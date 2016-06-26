@@ -161,8 +161,8 @@ def delete_portfolio(user_id):
 
 
 def init_db():
-    db.drop_all()
     db.create_all()
+    '''db.drop_all()
     user = User(username='"Xampper', firstname='Prusilla',
                 lastname='Anonymous', password=hash_password('maska'),
                 email='swdev.bali@gmail.com',
@@ -172,7 +172,7 @@ def init_db():
     user.portfolio.append(Portfolio(title='awesome', description='Great description', tags='python,django'))
     user.portfolio.append(Portfolio(title='awesome123', description='Great description123', tags='java,javascript'))
     db.session.add(user)
-    db.session.commit()
+    db.session.commit()'''
 
 
 if __name__ == '__main__':
