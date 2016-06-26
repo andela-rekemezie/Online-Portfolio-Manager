@@ -1,9 +1,11 @@
-{% extends "themes/water/base-layout.html" %}
+{% extends "base-layout.html" %}
 
+{% block header %}
+    {% if session['signed'] %}
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-editable.css') }}">
+    {% endif %}
+{% endblock %}
 {% block content %}
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename="bootstrap-tagsinput-latest/dist/bootstrap-tagsinput.css") }}">
-    <div class="row" style="padding-top: 50pxs;">
         <div class="page-header">
             <h1>{{ user.firstname }} {{ user.lastname }}</h1>
             {{ user.tagline }}
@@ -108,7 +110,6 @@
         </div>
     </div>
 {% endblock %}
-<script src="{{ url_for('static', filename="js/bootbox.min.js") }}"></script>
 
 {% block footer %}
     <script>
@@ -170,4 +171,7 @@
         }
 
     </script>
+    {% if session['signed'] %}
+        <script src="{{ url_for('static', filename='css/bootstrap-editable.min.js') }}"></script>
+    {% endif %}
 {% endblock %}

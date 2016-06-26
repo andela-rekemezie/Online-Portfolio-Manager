@@ -27,7 +27,7 @@ def hash_password(string):
 @application.route('/<username>')
 def index(username=None):
     if username is None:
-        return render_template("themes/water/index.html", signin_form=LoginForm(), page_title="Portfolio manager")
+        return render_template("index.html", signin_form=LoginForm(), page_title="Portfolio manager")
     user = User.query.filter_by(username=username).first()
 
     if user is None:
@@ -59,7 +59,7 @@ def signup():
         if email_exist:
             form.email.errors.append('Email already exists')
         if username_exist or email_exist:
-            return render_template('themes/water/signup.html', form=form, signinpage_form=LoginForm(),
+            return render_template('signup.html', form=form, signinpage_form=LoginForm(),
                                    page_title='Sign up form')
         else:
             user.firstname = 'firstname',
@@ -70,11 +70,11 @@ def signup():
             user.avatar = 'http://placehold.it/350/300',
             db.session.add(user)
             db.session.commit()
-            return render_template('themes/water/signup-success.html', signinpage_form=LoginForm(), form=form,
+            return render_template("signup-success.html", signinpage_form=LoginForm(), form=form,
                                    page_title='Success page on signup',
                                    user=user)
     else:
-        return render_template('themes/water/signup.html', signinpage_form=LoginForm(), form=form,
+        return render_template('signup.html', signinpage_form=LoginForm(), form=form,
                                page_title='This is the signup form')
 
 
@@ -87,9 +87,9 @@ def signin():
         user = User.query.filter_by(email=form.email.data).first()
         if user is None:
             form.email.errors.append('User does not exist')
-            return render_template('themes/water/signin.html', signinpage_form=form)
+            return render_template('signin.html', signinpage_form=form)
         if user.password != hash_password(form.password.data):
-            return render_template('themes/water/signin.html', signinpage_form=form)
+            return render_template('signin.html', signinpage_form=form)
         login_user(user, remember=form.remember_me.data)
         session['signed'] = True
         session['username'] = user.username
@@ -101,14 +101,14 @@ def signin():
             return redirect(url_for('index'))
     else:
         session['next'] = request.args.get('next')
-        return render_template('themes/water/signin.html', signinpage_form=LoginForm(),
+        return render_template('signin.html', signinpage_form=LoginForm(),
                                page_title='this is Login route')
 
 
 @application.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
-    return render_template('themes/water/profile.html', page_title="Customizable profile page")
+    return render_template('profile.html', page_title="Customizable profile page")
 
 
 @application.route('/signout')
