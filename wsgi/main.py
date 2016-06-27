@@ -182,8 +182,6 @@ def edit_tagline():
 
 @application.route('/edit_biography', methods=['GET', 'POST'])
 def edit_biography():
-    import pdb
-    pdb.set_trace()
     id = request.form['pk']
     user = User.query.get(id)
     user.biography = request.form['value']
