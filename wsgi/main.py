@@ -127,7 +127,7 @@ def get_portofolio(user_id):
 
 
 @application.route('/portfolio_add_update', methods=['GET', 'POST'])
-#@login_required
+# @login_required
 def portfolio_add_update():
     form = PortoForm(request.form)
     if form.validate_on_submit():
@@ -157,6 +157,38 @@ def delete_portfolio(user_id):
     db.session.delete(portfolio)
     db.session.commit()
     result = {'result': 'success'}
+    return json.dumps(result)
+
+
+@application.route('/edit_fullname', methods=['GET', 'POST'])
+def edit_fullname():
+    id = request.form['pk']
+    user = User.query.get(id)
+    user.fullname = request.form['value']
+    db.session.commit()
+    result = {}
+    return json.dumps(result)
+
+
+@application.route('/edit_tagline', methods=['GET', 'POST'])
+def edit_tagline():
+    id = request.form['pk']
+    user = User.query.get(id)
+    user.tagline = request.form['value']
+    db.session.commit()
+    result = {}
+    return json.dumps(result)
+
+
+@application.route('/edit_biography', methods=['GET', 'POST'])
+def edit_biography():
+    import pdb
+    pdb.set_trace()
+    id = request.form['pk']
+    user = User.query.get(id)
+    user.biography = request.form['value']
+    db.session.commit()
+    result = {}
     return json.dumps(result)
 
 

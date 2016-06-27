@@ -6,65 +6,80 @@
     {% endif %}
 {% endblock %}
 {% block content %}
-        <div class="page-header">
-            <h1>{{ user.firstname }} {{ user.lastname }}</h1>
+    <div class="page-header">
+        {% if session['signed'] %}
+            <a href="#" data-url="/edit_fullname" data-type="text" id="fullname" data-title="Username edit" data-pk="{{ user.id }}">
+                <h1>{{ user.fullname }}</h1></a>
+        {% else %}
+            <h1>{{ user.fullname }}</h1>
+        {% endif %}
+        {% if session['signed'] %}
+            <a href="#" data-url="/edit_tagline" data-type="text" id="tagline" data-title="user tagline"
+               data-pk="{{ user.id }}">{{ user.tagline }}</a>
+        {% else %}
             {{ user.tagline }}
-        </div>
-        <div class="col-sm-4" style="border-right-style: solid;">
-            <img class="img-responsive img-rounded" src="{{ user.avatar }}" alt="Avatar of user">
-            <div class="justify">
+        {% endif %}
+    </div>
+    <div class="col-sm-4" style="border-right-style: solid;">
+        <img class="img-responsive img-rounded" src="{{ user.avatar }}" alt="Avatar of user">
+        <div class="justify">
+            {% if session['signed'] %}
+                <a href="#" data-url="/edit_biography" data-type="text" id="biography" data-title="user tagline"
+                   data-pk="{{ user.id }}">{{ user.biography }}</a>
+            {% else %}
                 {{ user.biography }}
-            </div>
+            {% endif %}
         </div>
+    </div>
 
-        <div class="col-sm-8">
-            <div class="row">
-                <div class="col-sm-12">
-                    <div class="navbar-left"></div>
-                    <form class="navbar-form navbar-right" role="search">
-                        <button type="button" class="btn btn-primary btn-sm btn-success" data-toggle="modal"
-                                data-target="#porto_form" id="portoform-btnadd">
-                            Add
-                        </button>
-                        <div class="form-group">
-                            <input type="text" class="form-control" placeholder="Search">
-                        </div>
-                        <button class="btn-default" type="submit"><span class="glyphicon glyphicon-search"></span>
-                        </button>
-                    </form>
-                </div>
-            </div>
-            <div class="container">
-                <ul class="list-group">
-                    {% if user.portfolio %}
-                        Please add your portfolio!
-                    {% endif %}
-                    {% for portoform in user.portfolio %}
-                        <li class="list-group-item">
-                            <div class="row">
-                                <div class="col-sm-5">
-                                    <a href="javascript:editPortfolioForm('{{ portoform.id }}');"><span
-                                            class="glyphicon glyphicon-edit"></span></a> <a
-                                        href="javascript:deletePortfolio('{{ portoform.id }}');"><span
-                                        class="glyphicon glyphicon-remove"></span></a>
-                                    <strong>
-                                        {{ portoform.title }}
-                                    </strong>
-                                    <p>
-                                        {{ portoform.description }}
-                                    </p>
-                                </div>
-                                <div class="col-sm-7">
-                                    {% for tag in portoform.tags.split(',') %}
-                                        <span class="badge badge-important pull-right">{{ tag }}</span>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </li>
-                    {% endfor %}
-                </ul>
+    <div class="col-sm-8">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="navbar-left"></div>
+                <form class="navbar-form navbar-right" role="search">
+                    <button type="button" class="btn btn-primary btn-sm btn-success" data-toggle="modal"
+                            data-target="#porto_form" id="portoform-btnadd">
+                        Add
+                    </button>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search">
+                    </div>
+                    <button class="btn-default" type="submit"><span class="glyphicon glyphicon-search"></span>
+                    </button>
+                </form>
             </div>
         </div>
+        <div class="container">
+            <ul class="list-group">
+                {% if user.portfolio %}
+                    Please add your portfolio!
+                {% endif %}
+                {% for portoform in user.portfolio %}
+                    <li class="list-group-item">
+                        <div class="row">
+                            <div class="col-sm-5">
+                                <a href="javascript:editPortfolioForm('{{ portoform.id }}');"><span
+                                        class="glyphicon glyphicon-edit"></span></a> <a
+                                    href="javascript:deletePortfolio('{{ portoform.id }}');"><span
+                                    class="glyphicon glyphicon-remove"></span></a>
+                                <strong>
+                                    {{ portoform.title }}
+                                </strong>
+                                <p>
+                                    {{ portoform.description }}
+                                </p>
+                            </div>
+                            <div class="col-sm-7">
+                                {% for tag in portoform.tags.split(',') %}
+                                    <span class="badge badge-important pull-right">{{ tag }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
     </div> <!-- row -->
 
     <div class="modal fade" id="porto_form" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -114,6 +129,23 @@
 {% block footer %}
     <script>
         $(document).ready(function () {
+            $('#fullname').editable({
+            placement: 'right',
+            error: function () {
+            }
+        });
+        $('#tagline').editable({
+            placement: 'right',
+            error: function () {
+
+            }
+        });
+        $('#biography').editable({
+            placement: 'right',
+            error: function () {
+
+            }
+        });
         });
 
         $('#portform_btnsave').click(function (e) {
@@ -170,8 +202,25 @@
             })
         }
 
+{#        $('#fullname').editable({#}
+{#            placement: 'right',#}
+{#            error: function () {#}
+{#            }#}
+{#        });#}
+{#        $('#tagline').editable({#}
+{#            placement: 'right',#}
+{#            error: function () {#}
+{##}
+{#            }#}
+{#        });#}
+{#        $('#biography').editable({#}
+{#            placement: 'right',#}
+{#            error: function () {#}
+{##}
+{#            }#}
+{#        });#}
     </script>
     {% if session['signed'] %}
-        <script src="{{ url_for('static', filename='css/bootstrap-editable.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/bootstrap-editable.min.js') }}"></script>
     {% endif %}
 {% endblock %}
