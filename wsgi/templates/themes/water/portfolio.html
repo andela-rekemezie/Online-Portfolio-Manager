@@ -21,7 +21,11 @@
         {% endif %}
     </div>
     <div class="col-sm-4" style="border-right-style: solid;">
-        <img class="img-responsive img-rounded" src="{{ user.avatar }}" alt="Avatar of user">
+    {% if session['signed'] %}
+        <a href="javascript:uploadAvatar('{{ user.id }}')" ><img class="img-responsive img-rounded" id="avatar" src="{{ user.avatar }}" alt="Avatar of user"></a>
+    {% else %}
+            <img class="img-responsive img-rounded" src="{{ user.avatar }}" id="avatar" alt="Avatar of user">
+    {% endif %}
         <div class="justify">
             {% if session['signed'] %}
                 <a href="#" data-url="/edit_biography" data-type="text" id="biography" data-title="user tagline"
@@ -123,29 +127,38 @@
                 </div>
             </div>
         </div>
+    </div><!-- THE END OF PORTFOLIO MODAL -->
+
+<div class="modal fade" id="avatar_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Avatar upload modal</h4>
+      </div>
+      <div class="modal-body">
+          <form action="" id="upload-file" method="POST" enctype="multipart/form-data">
+              <input type="hidden" id="avatar_user_id" name="avatar_user_id"/>
+            <span class="btn btn-success fileinput-button">
+            <i class="glyphicon glyphicon-plus"></i>
+            <span>Add Avatar...</span>
+                <input name="file" type="file">
+            </span>
+            <button id="upload-file-btn" type="button" class="btn btn-primary">Upload</button>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
     </div>
+  </div>
+</div> <!--End of upload modal -->
 {% endblock %}
 
 {% block footer %}
     <script>
         $(document).ready(function () {
-            $('#fullname').editable({
-            placement: 'right',
-            error: function () {
-            }
-        });
-        $('#tagline').editable({
-            placement: 'right',
-            error: function () {
 
-            }
-        });
-        $('#biography').editable({
-            placement: 'right',
-            error: function () {
-
-            }
-        });
         });
 
         $('#portform_btnsave').click(function (e) {
@@ -172,7 +185,6 @@
         });
 
         function editPortfolioForm(id) {
-            alert(id, +"got here man")
             $('#portofolio_id').val(id);
             $.getJSON('/get_portofolio/' + id)
                     .done(function (data) {
@@ -201,26 +213,49 @@
                 }
             })
         }
-
-{#        $('#fullname').editable({#}
-{#            placement: 'right',#}
-{#            error: function () {#}
-{#            }#}
-{#        });#}
-{#        $('#tagline').editable({#}
-{#            placement: 'right',#}
-{#            error: function () {#}
-{##}
-{#            }#}
-{#        });#}
-{#        $('#biography').editable({#}
-{#            placement: 'right',#}
-{#            error: function () {#}
-{##}
-{#            }#}
-{#        });#}
-    </script>
-    {% if session['signed'] %}
+</script>
+{% if session['signed'] %}
         <script src="{{ url_for('static', filename='js/bootstrap-editable.min.js') }}"></script>
+    <script>
+        $('#fullname').editable({
+            placement: 'right',
+                error: function () {}
+        });
+        $('#tagline').editable({
+            placement: 'right',
+            error: function () {}
+        });
+        $('#biography').editable({
+            placement: 'right',
+            error: function () {}
+        });
+
+        function uploadAvatar(id) {
+            $('#avatar_user_id').val(id);
+            $('#avatar_modal').modal('show');
+        }
+
+        $('#upload-file-btn').click(function () {
+                var form_data = new FormData(document.forms.namedItem('upload-file'));
+            form_data.append('avatar_user_id', $('#avatar_user_id').val());
+            alert($('#upload-file'));
+            $.ajax({
+                url: '/user_avatar_upload',
+                data: form_data,
+                method: 'POST',
+                contentType: false,
+                processData: false,
+                cache: false,
+                success: function (data) {
+                    $('#avatar_modal').modal('hide');
+                    $('#avatar').attr('src', data);
+                },
+                error: function (error) {
+                    console.log($('#upload-file').val());
+                    console.log('error: '+ error.status, $('#avatar-file').val());
+                }
+            })
+        });
+    </script>
     {% endif %}
 {% endblock %}

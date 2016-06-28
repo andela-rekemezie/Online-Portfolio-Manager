@@ -1,10 +1,41 @@
 import hashlib
 import json
+import os
 from flask import render_template, url_for, request
 from flask_login import LoginManager, login_user, current_user, session, redirect, login_required, logout_user
 from __init__ import db, application
 from models import User, Portfolio
 from form import LoginForm, SignupForm, PortoForm
+from werkzeug.utils import secure_filename
+
+# configurations set up
+UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'static/upload')
+ALLOWED_EXTENSIONS = {'bmp', 'jpg', 'png', 'jpeg', 'gif', 'png'}
+application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+
+# allowed file function
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
+
+# Route for user upload
+@application.route('/user_avatar_upload', methods=['POST'])
+def user_avatar_upload():
+    # import pdb
+    # pdb.set_trace()
+    id = request.form['avatar_user_id']
+    file = request.files['file']
+    if request.method == 'POST':
+        if file and allowed_file(file.filename):
+            user = User.query.get(id)
+            filename = session['username'] + '_' + secure_filename(file.filename)
+            file.save(os.path.join(application.config['UPLOAD_FOLDER'], filename))
+            img = '/static/upload/' + filename
+            user.avatar = img
+            db.session.commit()
+            return img
+
 
 # Three steps to use flask-login
 login_manager = LoginManager()
@@ -148,6 +179,9 @@ def portfolio_add_update():
 
     form.errors['iserror'] = True
     return json.dumps(form.errors)
+
+
+# @application
 
 
 @application.route('/delete_portfolio/<int:user_id>')
